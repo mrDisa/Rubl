@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration page</title>
+    <style>
+        .register-form{
+            display: block;
+            width: 300px;
+            height:400px;
+            background-color:rgb(189, 189, 189);
+            border-radius: 60px;
+            padding: 40px;
+            justify-content: center;
+        }
+        .register-form input{
+            width: 90%;
+            padding: 10px;
+            justify-content: right;
+            margin:10px;
+            border-radius: 24px;
+            border:none;
+        }
+        .reg-btn{
+            display: flex;
+            font-size: larger;
+            padding: 20px;
+            background-color: rgb(255, 255, 255);
+            border: 2px solid black;
+            border-radius: 24px;
+            width: 100%;
+        }
+        label{
+            font-size: large;
+        }
+        h2{
+            font-size: 34px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <form action="{% url 'reg' %}" class="register-form" method="post">
+        {% csrf_token  %}
+        <h2>Регистрация</h2>
+        <label for="gmail">Mail:</label>
+        <input type="text" id="mail" name="gmail" placeholder="Введите почту"><br>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Введите никнейм"><br>
+        <label for="username">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Введите пароль">
+        <button class="reg-btn" type="submit">Зарегистрироваться</button>
+    </form>
+</body>
+</html>

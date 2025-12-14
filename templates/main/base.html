@@ -3,11 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block title %} <title>Blog page</title> {% endblock %}
+    {% block title %} <title>Главная страница</title> {% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=BBH+Hegarty&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+TC:wght@100..900&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    {% block style %}
+        <style>
+            body{
+                font-family: "Inter", sans-serif;
+                font-optical-sizing: auto;
+                font-weight: 400;
+                font-style: normal;
+                margin: 0;
+                background-color: #191A1F;
+            }
+            a{
+                color: white;
+                text-decoration: none;
+            }
+            header{
+                display: flex;
+                align-items: center;
+                width: 100%;
+                height: 100px;
+                background-color: #121315;
+                
+                font-size: 22px;
+                word-spacing: 30px;
+                
+            }
+            .hdr{
+                margin-left:30px;
+            }
+            .content{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                
+                
+            }
+            .post{
+                width: 50%;
+                background-color: #121317;
+                border-radius: 24px;
+                margin-top: 10px;
+
+                color:#FFFFFF;
+                padding: 40px;
+            }
+        </style>
+    {% endblock %}
 </head>
 <body>
+    <header>
+        <div class="hdr">
+            <a href="{% url 'main' %}">Лента</a>
+            <a href="#">Друзья</a>
+            <a href="#">Чат</a>
+            <a href="{% url 'register' %}" style="position:absolute; right:30px;">Логин/Регистрация</a>
+        </div>
+    </header>
     {% block content %}
-    <h1>Blog page with some content</h1>
+    <div class="content">
+            {% for post in posts %}
+                <div class="post">
+                    <h1>{{ post.name }}</h1>
+                    <p>{{ post.description }}</p>
+        
+                    <img src="{{ post.media }}">
+                    
+                </div>
+            {% endfor %}
+    </div>
     {% endblock %}
+    
 </body>
 </html>

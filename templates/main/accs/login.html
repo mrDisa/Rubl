@@ -1,18 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login page</title>
+{% extends 'main\base.html' %}
+{% block title %} <title>Login page</title> {% endblock %}
+
+{% block content %}
     <style>
+        form{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
         .login-form{
             display: block;
             width: 300px;
-            height:400px;
-            background-color:rgb(189, 189, 189);
+            height:340px;
+            background-color:#131313;
             border-radius: 60px;
             padding: 40px;
             justify-content: center;
+            color:white;
         }
         .login-form input{
             width: 90%;
@@ -24,12 +29,19 @@
         }
         .log-btn{
             display: flex;
-            font-size: larger;
-            padding: 20px;
-            background-color: rgb(255, 255, 255);
-            border: 2px solid black;
-            border-radius: 24px;
             width: 100%;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            background-color: #191A1F;
+            border: none;
+            border-radius: 24px;
+
+            font-size: larger;
+            color:white;
+
+            padding: 20px;
+
+            
         }
         label{
             font-size: large;
@@ -39,17 +51,22 @@
             margin-top: 10px;
             text-align: center;
         }
+        button{
+            transition: 0.4s ease;
+        }
+        button:hover{
+            background-color: #14161b;
+        }
     </style>
-</head>
-<body>
-    <form action="{% url 'log' %}" class="login-form" method="post">
+    <form action="{% url 'login' %}" class="login-form" method="post">
         {% csrf_token  %}
         <h2>Вход</h2>
-        <label for="username">Username:</label>
+        <label for="username">Никнейм:</label>
         <input type="text" id="username" name="username" placeholder="Введите никнейм"><br>
-        <label for="username">Password:</label>
+        <label for="username">Пароль:</label>
         <input type="password" id="password" name="password" placeholder="Введите пароль">
         <button class="log-btn" type="submit">Войти</button>
+        Забыли пароль? <a href="#">Восстановить</a><br>
+        Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
     </form>
-</body>
-</html>
+{% endblock %}

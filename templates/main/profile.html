@@ -1,0 +1,52 @@
+{% extends 'main/base.html' %}
+{% block content %}
+    <style>
+        .profile{
+            display: block;
+            align-items: center;
+            justify-content: center;
+
+            width: 600px;
+            height:400px;
+
+            background-color:#121317;
+            border-radius: 60px;
+            padding: 30px;
+
+        }
+        button{
+            font-size: larger;
+            padding: 20px;
+            color: white;
+
+            background-color: #191A1F;
+            border: none;
+            border-radius: 40px;
+        }
+        .edit_btn{
+            font-size: larger;
+            padding: 20px;
+            color: white;
+
+            background-color: #191A1F;
+            border: none;
+            border-radius: 40px;
+        }
+        
+    </style>
+    <div class="profile">
+        <h1>Ваш профиль</h1>
+        <h4>Никнейм: {{ request.user.username }}</h4>
+        {% if user.profile.avatar != '' %}
+            <h4 style="width: 24px;">Аватарка: <img src='{{ user.profile.avatar }}'></h4>
+        {% else %}
+            <h4 style="width: 24px;">Аватарка: Нет</h4>
+        {% endif %}
+        {% if user.profile.name != '' %}
+            <h4>Имя: {{ user.profile.name }}</h4>
+        {% else %}
+            <h4>Имя: Нет</h4>
+        {% endif %}
+        <a href="{% url 'edit_profile' %}" class="edit_btn">Редактировать профиль</a>
+    </div>
+{% endblock %}

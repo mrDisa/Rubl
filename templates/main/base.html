@@ -16,6 +16,7 @@
                 font-style: normal;
                 margin: 0;
                 background-color: #191A1F;
+                color:white;
             }
             a{
                 color: white;
@@ -51,6 +52,9 @@
                 color:#FFFFFF;
                 padding: 40px;
             }
+            .user-info{
+                line-height: 6px;
+            }
         </style>
     {% endblock %}
 </head>
@@ -60,15 +64,25 @@
             <a href="{% url 'main' %}">Лента</a>
             <a href="#">Друзья</a>
             <a href="#">Чат</a>
-            <a href="{% url 'register' %}" style="position:absolute; right:30px;">Логин/Регистрация</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" style="position:absolute; right:30px; top:35px">{{ request.user.username }}</a>
+                <a href="{% url 'profile' %}" style="position:absolute; right:30px; top:45px">{{ user.profile.name }}</a>
+            {% else %}
+                <a href="{% url 'register' %}" style="position:absolute; right:30px;">Логин/Регистрация</a>
+            {% endif %}
         </div>
     </header>
     {% block content %}
     <div class="content">
             {% for post in posts %}
                 <div class="post">
-                    <h1>{{ post.name }}</h1>
+                    <div class="user-info">
+                        <h4>{{ post.author_name }}</h4>
+                        <h5>{{ post.author_user }}</h5>
+                    </div>
+                    <h2>{{ post.name }}</h2>
                     <p>{{ post.description }}</p>
+                    <h6 style="float:right; line-height:0px; margin-bottom:0;">{{ post.date }}</h6>
         
                     <img src="{{ post.media }}">
                     

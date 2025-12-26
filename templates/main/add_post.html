@@ -1,2 +1,71 @@
 {% extends 'main/base.html' %}
 
+{% block content %}
+    <style>
+        form{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .add_post{
+            display: block;
+            align-items: center;
+            justify-content: center;
+
+            width: 600px;
+            height:500px;
+
+            background-color:#121317;
+            border-radius: 60px;
+            padding: 60px;
+            
+        }
+        button{
+            font-size: larger;
+            padding: 20px;
+            color: white;
+
+            background-color: #191A1F;
+            border: none;
+            border-radius: 40px;
+        }
+        .edit_btn{
+            display: flex;
+            justify-content: center;
+            
+            width: 100px;
+            font-size: larger;
+            padding: 20px;
+
+            background-color: #d9d9d9;
+            color: black;
+            width: 500px;
+            border: none;
+            border-radius: 40px;
+            margin-top: 20px;
+        }
+        input{
+            background-color: #D9D9D9;
+            border: none;
+            border-radius: 30px;
+            padding: 10px;
+            width: 500px;
+
+            color: black;
+        }
+        .description{
+            height: 200px;
+        }
+        
+    </style>
+    <form action="{% url 'add_post' %}" class="add_post"  method="post">
+        {% csrf_token %}
+        <h1>Добавить пост</h1>
+        <label for="name">Название поста</label>
+        <input type="text" class="title" name="name" style="margin-top: 20px;"><br>
+        <label for="description">Описание</label><br>
+        <input type="text" class="description" name="description" required style="margin-top: 20px;"><br>
+        <button type="submit" class="edit_btn">Выложить</button>
+    </form>
+{% endblock %}

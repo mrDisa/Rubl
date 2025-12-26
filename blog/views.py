@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, render
 
 from .models import Post
+from accounts.models import Profile
 
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -17,6 +18,24 @@ def profile(request):
 def edit_profile(request):
     return render(request, 'main/edit_profile.html')
 
+def save_profile(request):
+    if request.method == 'POST':
+        profile.name = request.POST['name']
+        profile.avatar = request.POST['avatar']
+        profile.save()
+    return redirect('profile')
+    
+def add_post(request):
+    if request.method == 'POST':
+        post = Post()
+        post.name = request.POST['name']
+        post.description = request.POST['description']
+        post.author_user = request.user.username
+        post.save()
+        
+    return render(request, 'main/add_post.html')
+
+    
 def register(request):
     if request.method == 'POST':
         user = User()

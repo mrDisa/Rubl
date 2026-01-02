@@ -62,8 +62,8 @@
     <form action="{% url 'add_post' %}" class="add_post"  method="post">
         {% csrf_token %}
         <h1>Добавить пост</h1>
-        <label for="name">Название поста</label>
-        <input type="text" class="title" name="name" style="margin-top: 20px;"><br>
+        <label for="title">Название поста</label>
+        <input type="text" class="title" name="title" style="margin-top: 20px;"><br>
         <label for="description">Описание</label><br>
         <input type="text" class="description" name="description" required style="margin-top: 20px;"><br>
         <button type="submit" class="edit_btn">Выложить</button>

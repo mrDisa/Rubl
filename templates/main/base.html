@@ -18,6 +18,9 @@
                 background-color: #191A1F;
                 color:white;
             }
+            body::-webkit-scrollbar {
+                display: none;
+            }
             a{
                 color: white;
                 text-decoration: none;
@@ -26,6 +29,7 @@
                 display: flex;
                 align-items: center;
                 margin: 10px 10px;
+                position:fixed;
 
                 height: 80px;
                 margin-top:10px;
@@ -34,21 +38,21 @@
 
                 font-size: 22px;
                 word-spacing: 20px;
-                
+                width: 99%;
+
             }
             .hdr{
                 margin-left:30px;
             }
             .user_profile{
                 position: absolute;
-                right: 20px;
-                top:22px;
+                right: 22px;
+                top:14px;
             }
             .content{
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                
+                align-items: center; 
             }
             .post{
                 width: 50%;
@@ -58,6 +62,12 @@
 
                 color:#FFFFFF;
                 padding: 40px;
+            }
+            .post:first-child{
+                margin-top: 100px;
+            }
+            .post:last-child{
+                margin-bottom: 20px;
             }
             .user-info{
                 line-height: 6px;
@@ -74,9 +84,16 @@
             {% if user.is_authenticated %}
             <a href="{% url 'add_post' %}" style="word-spacing: normal; ">Добавить пост</a>
             <div class="user_profile">
-                <a href="{% url 'profile' %}" style="margin-left: 20px;">{{ request.user.username }}</a>
-                <a href="{% url 'profile' %}">{{ user.first_name }}</a>
-                <img src="{{ user.profile.avatar.url }}" href="{% url 'profile' %}" style="vertical-align: middle;;width:58px; border-radius:60px">
+                <a href="{% url 'profile' %}">{{ user.profile.name }}</a><br>
+                <a href="{% url 'profile' %}" style="font-size:medium">#{{ request.user.username }}</a>
+                {% load static %}
+                {% with user.profile as profile %}
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" href="{% url 'profile' %}" style="vertical-align: middle;width:64px;height:64px;margin-top:-30px; border-radius:60px">
+                    {% else %}
+                        <img src="media/avatars/df.jpg" href="{% url 'profile' %}" style="vertical-align: middle;width:64px;margin-top:-30px; border-radius:60px">
+                    {% endif %}
+                {% endwith %}
             </div>
             {% else %}
                 <a href="{% url 'register' %}" style="position:absolute; right:40px;">Логин/Регистрация</a>
@@ -91,7 +108,7 @@
                         <h4>{{ post.author_name }}</h4>
                         <h5>{{ post.author_user }}</h5>
                     </div>
-                    <h2>{{ post.name }}</h2>
+                    <h2>{{ post.title }}</h2>
                     <p>{{ post.description }}</p>
                     <h6 style="float:right; line-height:0px; margin-bottom:0;">{{ post.date }}</h6>
         

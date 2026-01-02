@@ -1,7 +1,20 @@
+from urllib import request
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 class Profile(models.Model):
-    name = models.OneToOneField(User, verbose_name=("Имя"), on_delete=models.CASCADE, default='g')
-    avatar = models.ImageField(upload_to='avatars', default='avatars/df.jpg')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default='g')
+    name = models.CharField(max_length=30, default="")
+    avatar = models.ImageField(upload_to='avatars/%Y%m%d/', default='avatars/df.jpg', blank=True)
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()

@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
+from django.core.files.storage import FileSystemStorage
 
 from .models import Post
 from accounts.models import Profile
@@ -7,28 +8,32 @@ from accounts.models import Profile
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
+
 def main(request):
     posts = Post.objects.all()
     
     return render(request, 'main/base.html', {'posts': posts})
 
 def profile(request):
-    return render(request, 'main/profile.html')
+    profile = Profile.objects.get(user=request.user)
+    
+    return render(request, 'main/profile.html', {'profile': profile})
 
 def edit_profile(request):
     return render(request, 'main/edit_profile.html')
 
 def save_profile(request):
     if request.method == 'POST':
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         profile.name = request.POST['name']
-        profile.avatar = request.POST['avatar']
+        profile.avatar = request.FILES.get('avatar')
         profile.save()
     return redirect('profile')
     
 def add_post(request):
     if request.method == 'POST':
         post = Post()
-        post.name = request.POST['name']
+        post.title = request.POST['title']
         post.description = request.POST['description']
         post.author_user = request.user.username
         post.save()

@@ -13,6 +13,10 @@
             border-radius: 60px;
             padding: 30px;
 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         button{
             font-size: larger;
@@ -33,20 +37,12 @@
             border-radius: 40px;
         }
     </style>
-    <form action="{% url 'edit_profile' %}" class="profile" method="post">
+    <form action="{% url 'save_profile' %}" class="profile" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <h1>Ваш профиль</h1>
         <h4>Никнейм: {{ request.user.username }}</h4>
-        {% if user.profile.avatar != '' %}
-            <h4 style="width: 24px;">Аватарка: <img src='{{ user.profile.avatar }}'></h4> 
-        {% else %}
-            <h4 style="width: 24px;">Аватарка: Нет</h4> <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" />
-        {% endif %}
-        {% if user.profile.name != '' %}
-            <h4>Имя: {{ user.profile.name }}</h4>
-        {% else %}
-            <h4>Имя: Нет</h4>
-        {% endif %}
+        <h4 style="width: 24px;">Аватарка: </h4> <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" />
+        <h4>Имя: <input type="text" name="name" required></h4>
         <button type="submit" class="save_btn">Сохранить</button>
     </form>
 {% endblock %}

@@ -27,27 +27,32 @@
             }
             header{
                 display: flex;
+                flex-direction: row;
                 align-items: center;
                 margin: 10px 10px;
                 position:fixed;
-
                 height: 80px;
-                margin-top:10px;
+
                 background-color: #121315;
                 border-radius: 60px;
 
                 font-size: 22px;
-                word-spacing: 20px;
                 width: 99%;
+                flex-wrap: wrap;
 
+            }
+            header a{
+                margin-left: 10px;
             }
             .hdr{
                 margin-left:30px;
             }
             .user_profile{
                 position: absolute;
-                right: 22px;
-                top:14px;
+                right:80px;
+                top:10px;
+
+                
             }
             .content{
                 display: flex;
@@ -72,31 +77,100 @@
             .user-info{
                 line-height: 6px;
             }
+            .dropdown-menu{
+                display: none;
+                position: absolute;
+                margin-top: 35px;
+                right:10px;
+                background-color: #0d0e11;
+                padding: 20px;
+                border-radius: 30px;
+            }
+            .dropdown-menu.show {
+                display: block;
+            }
+            .drop-btn{
+                position: absolute;
+                right: 10px;
+                top:32px;
+                border:none;
+                vertical-align: middle;
+                background: none;
+
+                width:68px;
+                height:68px;
+                position: absolute;
+                margin-top:-30px; 
+                border-radius:60px
+            }
+            .avatar{
+                position: absolute;
+
+                margin-left: -28px;
+                margin-top: -28px;
+                width:64px;
+                height:64px;
+
+                border-radius:60px;
+            }
+            .logout-btn{
+                background: none;
+                border: none;
+                color:white;
+            }
+            a{
+                font-size: 24px;
+            }
+            button{
+                font-size: 24px;
+            }
+            .log-in{
+                position: absolute;
+                top:26px;
+                right:40px;
+                
+            }
         </style>
     {% endblock %}
 </head>
 <body>
     <header>
         <div class="hdr">
+
             <a href="{% url 'main' %}">Лента</a>
-            <a href="#">Друзья</a>
-            <a href="#">Чат</a>
+            <a href="{% url 'development' %}">Друзья</a>
+            <a href="{% url 'development' %}">Чат</a>
             {% if user.is_authenticated %}
             <a href="{% url 'add_post' %}" style="word-spacing: normal; ">Добавить пост</a>
+
             <div class="user_profile">
-                <a href="{% url 'profile' %}">{{ user.profile.name }}</a><br>
-                <a href="{% url 'profile' %}" style="font-size:medium">#{{ request.user.username }}</a>
-                {% load static %}
+                <a>{{ user.profile.name }}</a><br>
+                <a style="font-size:medium">#{{ request.user.username }}</a>
+                
+            </div>
+            {% load static %}
                 {% with user.profile as profile %}
                     {% if profile.avatar %}
-                        <img src="{{ profile.avatar.url }}" href="{% url 'profile' %}" style="vertical-align: middle;width:64px;height:64px;margin-top:-30px; border-radius:60px">
+                        <button class="drop-btn"><img src="{{ profile.avatar.url }}" class="avatar"></button>
                     {% else %}
-                        <img src="media/avatars/df.jpg" href="{% url 'profile' %}" style="vertical-align: middle;width:64px;margin-top:-30px; border-radius:60px">
+                        <button class="drop-btn"><img src="media/avatars/df.jpg" style="vertical-align: middle;width:64px;margin-top:4px; border-radius:60px"></button>
                     {% endif %}
                 {% endwith %}
-            </div>
+                <div class="dropdown-menu">
+                    <a href="{% url 'profile' %}">Профиль</a>
+                    <form action="{% url 'user_logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">Выйти</button>
+                    </form>
+                </div>
             {% else %}
-                <a href="{% url 'register' %}" style="position:absolute; right:40px;">Логин/Регистрация</a>
+
+            <div class="log-in">
+                <a href="{% url 'login' %}" >Вход</a>
+                <a>/</a>
+                <a href="{% url 'register' %}">Регистрация</a>
+            </div>
+
             {% endif %}
         </div>
     </header>
@@ -106,7 +180,7 @@
                 <div class="post">
                     <div class="user-info">
                         <h4>{{ post.author_name }}</h4>
-                        <h5>{{ post.author_user }}</h5>
+                        <h5>#{{ post.author_user }}</h5>
                     </div>
                     <h2>{{ post.title }}</h2>
                     <p>{{ post.description }}</p>
@@ -118,6 +192,10 @@
             {% endfor %}
     </div>
     {% endblock %}
-    
+    <script>
+        document.querySelector('.drop-btn').addEventListener('click', function() {
+            document.querySelector('.dropdown-menu').classList.toggle('show');
+        });
+    </script>
 </body>
 </html>

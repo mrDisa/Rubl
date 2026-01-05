@@ -1,12 +1,17 @@
-from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect, render, get_object_or_404
-from django.core.files.storage import FileSystemStorage
+from django.shortcuts import redirect, render
 
+# Models
 from .models import Post
 from accounts.models import Profile
 
+# USER AUTHENTICATION
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate, login
+
+# LOGIN
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 
 
 def main(request):
@@ -29,6 +34,12 @@ def save_profile(request):
         profile.avatar = request.FILES.get('avatar')
         profile.save()
     return redirect('profile')
+
+@login_required
+def user_logout(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('main')
     
 def add_post(request):
     if request.method == 'POST':
@@ -36,7 +47,9 @@ def add_post(request):
         post.title = request.POST['title']
         post.description = request.POST['description']
         post.author_user = request.user.username
+        post.author_name = request.user.profile.name
         post.save()
+        return redirect('main')
         
     return render(request, 'main/add_post.html')
 
@@ -67,3 +80,7 @@ def user_login(request):
             return redirect('login')
         
     return render(request, 'main/accs/login.html')
+
+
+def development(request):
+    return render(request, 'main/in_development.html')

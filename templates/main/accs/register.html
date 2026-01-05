@@ -63,11 +63,11 @@
     {% csrf_token %}
     <h2>Регистрация</h2>
     <label for="gmail">Почта:</label>
-    <input type="text" id="mail" name="gmail" placeholder="Введите почту"><br>
+    <input type="text" id="mail" name="gmail" placeholder="Введите почту" required><br>
     <label for="username">Никнейм:</label>
-    <input type="text" id="username" name="username" placeholder="Введите никнейм"><br>
+    <input type="text" id="username" name="username" placeholder="Введите никнейм" required><br>
     <label for="username">Пароль:</label>
-    <input type="password" id="password" name="password" placeholder="Введите пароль">
+    <input type="password" id="password" name="password" placeholder="Введите пароль" required>
     <button class="reg-btn" type="submit">Зарегистрироваться</button>
     Уже зарегистрированы?<a href="{% url 'login'%}"> Войти</a>
 </form>

@@ -11,6 +11,7 @@
 git clone https://github.com/mrDisa/Rubl.git
 cd Rubl
 ```
+* Создайте новое окружение
 ```
 python -m venv venv
 venv\Scripts\activate

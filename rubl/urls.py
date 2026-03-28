@@ -3,21 +3,32 @@ from django.urls import path
 from django.conf.urls.static import static
 
 from main import views
-from main.views import CommentAPIList, FollowAPIList, PostDetailView,  PostListCreateView, UserAPIList
+from main.views import CommentDetailView, CommentListCreateView, FollowDetailView, FollowListCreateView, PostDetailView,  PostListCreateView, UserAPIList, UserDetailView, UserMeView
 
 from . import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainView, name='main'),
+    # USER URLS
+
     path('api/v1/users/', UserAPIList.as_view()),
-    
+    path('api/v1/users/<int:pk>/', UserDetailView.as_view()),
+    path('api/v1/users/me', UserMeView.as_view()),
+
+    # POST URLS
+
     path('api/v1/posts/', PostListCreateView.as_view()),
     path('api/v1/posts/<int:pk>/', PostDetailView.as_view()),
 
+    # COMMENT URLS
     
-    path('api/v1/comments/', CommentAPIList.as_view()),
-    path('api/v1/follows/', FollowAPIList.as_view()),
+    path('api/v1/comments/', CommentListCreateView.as_view()),
+    path('api/v1/comments/<int:pk>/', CommentDetailView.as_view()),
+
+    # FOLLOW URLS
+    path('api/v1/follows/', FollowListCreateView.as_view()),
+    path('api/v1/follows/<int:pk>/', FollowDetailView.as_view()),
 ]
 
 if settings.DEBUG:

@@ -3,10 +3,10 @@ from rest_framework import serializers
 from .models import Follow, Post, User, Comment
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Post
         fields = ("__all__")
+        read_only_fields = ("author",)
         
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,9 +25,11 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("__all__")
-        
+        read_only_fields = ("author", "post",)  
+
 class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    follower = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Follow
-        fields = ("__all__") 
+        fields = ['follower', 'following', 'created_at']
+    

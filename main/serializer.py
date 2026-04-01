@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Follow, Post, User, Comment
+from .models import Follow, Like, Post, User, Comment
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,15 +21,21 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Comment
         fields = ("__all__")
         read_only_fields = ("author", "post",)  
 
 class FollowSerializer(serializers.ModelSerializer):
-    follower = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    follower = UserSerializer(read_only=True)
     class Meta:
         model = Follow
         fields = ['follower', 'following', 'created_at']
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Like
+        fields = ['user', 'post']
     

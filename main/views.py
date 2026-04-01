@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, viewsets
-from .serializer import FollowSerializer, CommentSerializer, PostSerializer, UserSerializer
-from .models import Follow, Post, User, Comment
+from .serializer import FollowSerializer, CommentSerializer, LikeSerializer, PostSerializer, UserSerializer
+from .models import Follow, Like, Post, User, Comment
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -67,4 +67,15 @@ class FollowListCreateView(generics.ListCreateAPIView):
 class FollowDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+# LIKES
+class LikeListCreateView(generics.ListCreateAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
+
+class LikeDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]

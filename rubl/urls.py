@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf.urls.static import static
 
 from main import views
-from main.views import CommentDetailView, CommentListCreateView, FollowDetailView, FollowListCreateView, PostDetailView,  PostListCreateView, UserAPIList, UserDetailView, UserMeView
+from main.views import CommentDetailView, CommentListCreateView, FollowDetailView, FollowListCreateView, LikeDetailView, LikeListCreateView, PostDetailView,  PostListCreateView, UserAPIList, UserDetailView, UserMeView
 
 from . import settings
 
@@ -29,6 +29,10 @@ urlpatterns = [
     # FOLLOW URLS
     path('api/v1/follows/', FollowListCreateView.as_view()),
     path('api/v1/follows/<int:pk>/', FollowDetailView.as_view()),
+
+    # LIKE URLS
+    path('api/v1/likes/', LikeListCreateView.as_view()),
+    path('api/v1/likes/<int:pk>/', LikeDetailView.as_view()),
 ]
 
 if settings.DEBUG:

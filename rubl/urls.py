@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.conf.urls.static import static
 
 from main import views
@@ -10,6 +10,10 @@ from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainView, name='main'),
+    # FEED
+
+    path('api/v1/feed/', include('feed.urls')),
+
     # USER URLS
 
     path('api/v1/users/', UserAPIList.as_view()),

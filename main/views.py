@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, viewsets
-from .serializer import FollowSerializer, CommentSerializer, LikeSerializer, PostSerializer, UserSerializer
+from .serializers import FollowSerializer, CommentSerializer, LikeSerializer, PostSerializer, UserSerializer
 from .models import Follow, Like, Post, User, Comment
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .permissions import IsOwnerOrReadOnly
 
 def mainView(request):
-    return render(request, 'main/base.html')
+    return render(request, 'main/base.html')    
 
 # USERS
 class UserAPIList(generics.ListAPIView):

@@ -35,8 +35,8 @@ class Comment(models.Model):
         return f'Автор комментария: {self.author}, Название поста: {self.post}'
     
 class Follow(models.Model):
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_users')
-    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
     created_at = models.DateField(auto_now_add=True)
     
     class Meta: 

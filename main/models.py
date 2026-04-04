@@ -26,7 +26,7 @@ class Post(models.Model):
     
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField(max_length=300)
     media = models.ImageField(upload_to='media_comments/%Y/%m%d', blank=True)
     created_at = models.DateField(auto_now_add=True)
@@ -47,8 +47,8 @@ class Follow(models.Model):
     
 
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_who_liked')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='who_liked')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
     
     def __str__(self):
         return f"{self.user} лайкнул пост {self.post.title}"

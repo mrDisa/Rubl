@@ -9,4 +9,4 @@ class FeedView(generics.ListAPIView):
     def get_queryset(self):
         follow = Follow.objects.filter(follower=self.request.user)
         following_users = follow.values_list('following', flat=True)
-        return Post.objects.filter(author__in=following_users).distinct().order_by('-created_at')
+        return Post.objects.filter(author__in=following_users).distinct().order_by('-created_at').prefetch_related('comments')

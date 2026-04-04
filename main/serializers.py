@@ -14,21 +14,21 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-
-class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
-    class Meta:
-        model = Post
-        fields = ("__all__")
-        read_only_fields = ("author",)
-
-
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:
         model = Comment
         fields = ("__all__")
         read_only_fields = ("author", "post",)  
+
+class PostSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'content', 'media', 'created_at', 'updated_at', 'author', 'comments']
+        read_only_fields = ("author",)
+
 
 class FollowSerializer(serializers.ModelSerializer):
     follower = UserSerializer(read_only=True)

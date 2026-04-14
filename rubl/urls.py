@@ -3,17 +3,26 @@ from django.urls import include, path
 from django.conf.urls.static import static
 
 from main import views
-from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, PostDetailView,  PostListCreateView
+from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, MyPostsDetailView, PostDetailView,  PostListCreateView, MyPostsView
+from feed.views import FeedAPIView, FeedView
 from users.views import UserAPIList, UserDetailView, UserMeView
 from main.views import FollowListCreateView, FollowDetailView
 from . import settings
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainView, name='main'),
+    path("api/v1/token/", TokenObtainPairView.as_view()),
+    path("api/v1/token/refresh/", TokenRefreshView.as_view()),
     # FEED
 
-    path('api/v1/feed/', include('feed.urls')),
+    path('api/v1/feed/', FeedAPIView.as_view()),
+    path('feed/', FeedView, name='feed'),
 
     # USER URLS
 
@@ -25,6 +34,8 @@ urlpatterns = [
 
     path('api/v1/posts/', PostListCreateView.as_view()),
     path('api/v1/posts/<int:pk>/', PostDetailView.as_view()),
+    path('api/v1/myposts/', MyPostsView.as_view()),
+    path('api/v1/myposts/<int:pk>/', MyPostsDetailView.as_view()),
 
     # COMMENT URLS
     

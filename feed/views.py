@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render
 from rest_framework import generics
 
@@ -6,7 +8,12 @@ from posts.models import Post
 from posts.serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated
 
-class FeedView(generics.ListAPIView):
+from django.views.generic import ListView
+
+def FeedView(request):
+    return render(request, 'feed/feed.html')
+
+class FeedAPIView(generics.ListAPIView):
     serializer_class = PostSerializer
     def get_queryset(self):
         follow = Follow.objects.filter(follower=self.request.user)

@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render
 from rest_framework import generics
 
@@ -22,6 +24,15 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+class MyPostsView(generics.ListAPIView):
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user).order_by('-id')
+    serializer_class = PostSerializer
+    
+class MyPostsDetailView(generics.RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+    serializer_class = PostSerializer
 # COMMENTS
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -35,8 +46,8 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-# LIKES
 
+# LIKES
 class LikeListCreateView(generics.ListCreateAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer

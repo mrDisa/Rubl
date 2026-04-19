@@ -1,5 +1,5 @@
 # 🚀 Productivity Social Network
-![Rubl view](rublfeedview.png)
+![Rubl view](rublefeedview.png)
 Социальная сеть для людей, которые хотят расти, ставить цели и достигать результатов вместе с единомышленниками.
 ## ✨ О проекте
 

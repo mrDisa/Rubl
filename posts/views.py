@@ -1,59 +1,108 @@
-from urllib import request
+# Django
+from django.shortcuts import get_object_or_404
 
-from django.shortcuts import render
-from rest_framework import generics
-
-from posts.models import Comment, Like, Post
-# from rest_framework.permissions import SAFE_METHODS, BasePermission
+# Django REST Framework
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+# Локальные импорты
 from interactions.permissions import IsOwnerOrReadOnly
+from posts.models import Comment, Like, Post
+from .serializers import CommentSerializer, LikeSerializer, PostSerializer
 
-from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 
+# ==========================================
 # POSTS
+# ==========================================
+
 class PostListCreateView(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+
 class MyPostsView(generics.ListAPIView):
+    serializer_class = PostSerializer
+
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user).order_by('-id')
-    serializer_class = PostSerializer
-    
+
+
 class MyPostsDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = PostSerializer
+
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user)
-    serializer_class = PostSerializer
+
+
+# ==========================================
 # COMMENTS
+# ==========================================
+
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+
+# ==========================================
 # LIKES
+# ==========================================
+
 class LikeListCreateView(generics.ListCreateAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
 
 class LikeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+
+class ToggleLikeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, post_id):
+        # Находим пост, который лайкают
+        post = get_object_or_404(Post, id=post_id)
+        
+        # Проверяем, лайкал ли уже этот юзер этот пост
+        like_qs = Like.objects.filter(user=request.user, post=post)
+        
+        if like_qs.exists():
+            # Если лайк уже есть — удаляем его (убираем лайк)
+            like_qs.delete()
+            return Response({"detail": "Лайк убран", "is_liked": False}, status=status.HTTP_200_OK)
+        
+        # Если лайка нет — создаем его
+        Like.objects.create(user=request.user, post=post)
+        return Response({"detail": "Лайк поставлен", "is_liked": True}, status=status.HTTP_201_CREATED)
+#Profile
+class UserPostsListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Post.objects.filter(author_id=user_id).order_by('-created_at')

@@ -2,7 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Ruble - Регистрация</title>
+    <title>Ruble - Вход</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'feed/feed.css' %}" />
     <style>
@@ -53,7 +53,7 @@
       .auth-input:focus {
         border-color: rgba(255, 255, 255, 0.3);
       }
-      .btn-register {
+      .btn-login {
         width: 100%;
         background: white;
         color: black;
@@ -65,7 +65,7 @@
         margin-top: 20px;
         transition: 0.3s;
       }
-      .btn-register:hover {
+      .btn-login:hover {
         opacity: 0.9;
         transform: translateY(-2px);
       }
@@ -78,7 +78,6 @@
         color: white;
         text-decoration: none;
       }
-      /* Блок для показа ошибок */
       #error-message {
         color: #ff4d4f;
         font-size: 13px;
@@ -93,9 +92,9 @@
         <div class="logo" style="margin: 0 0 20px 0; text-align: center">
           Ruble
         </div>
-        <h2>Создать аккаунт</h2>
+        <h2>С возвращением</h2>
 
-        <form id="registerForm">
+        <form id="loginForm">
           <div class="form-group">
             <label>Имя пользователя</label>
             <input
@@ -103,28 +102,6 @@
               name="username"
               class="auth-input"
               placeholder="@username"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Ваше имя</label>
-            <input
-              type="text"
-              name="first_name"
-              class="auth-input"
-              placeholder="Например: Иван"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              class="auth-input"
-              placeholder="hello@ruble.com"
               required
             />
           </div>
@@ -140,77 +117,49 @@
             />
           </div>
 
-          <button type="submit" class="btn-register">Зарегистрироваться</button>
-          <div id="error-message">Ошибка при регистрации</div>
+          <button type="submit" class="btn-login">Войти</button>
+          <div id="error-message">Неверный логин или пароль</div>
         </form>
 
         <div class="auth-footer">
-          Уже есть аккаунт? <a href="/login/">Войти</a>
+          Нет аккаунта? <a href="/signup/">Создать</a>
         </div>
       </div>
     </div>
 
     <script>
-      // Функция для получения скрытого токена безопасности Django (CSRF)
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1),
-              );
-              break;
-            }
-          }
-        }
-        return cookieValue;
-      }
-
       document
-        .getElementById("registerForm")
+        .getElementById("loginForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
-
-          // Собираем данные из формы (теперь тут есть username, first_name, email и password)
           const formData = new FormData(this);
           const data = Object.fromEntries(formData.entries());
           const errorMsg = document.getElementById("error-message");
 
-          // Точный URL API твоего бэкенда
-          const apiUrl = "/api/v1/users/register/";
-
-          // Получаем токен из куки
-          const csrftoken = getCookie("csrftoken");
-
-          // Скрываем предыдущую ошибку при новой попытке
-          errorMsg.style.display = "none";
+          // API URL для получения JWT токена
+          const tokenUrl = "/api/v1/token/";
 
           try {
-            const response = await fetch(apiUrl, {
+            const response = await fetch(tokenUrl, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
             });
 
             if (response.ok) {
-              // Регистрация прошла успешно!
-              window.location.href = "/login/";
+              const tokens = await response.json();
+              localStorage.setItem("access_token", tokens.access);
+              localStorage.setItem("refresh_token", tokens.refresh);
+
+              // Уходим в ленту по красивому адресу
+              window.location.href = "/feed/";
             } else {
-              const errorData = await response.json();
               errorMsg.style.display = "block";
-              errorMsg.textContent = Object.values(errorData).flat().join(", ");
+              errorMsg.textContent = "Неверный логин или пароль";
             }
           } catch (error) {
-            console.error("Ошибка:", error);
             errorMsg.style.display = "block";
-            errorMsg.textContent =
-              "Ошибка соединения с сервером. Проверьте терминал.";
+            errorMsg.textContent = "Ошибка сервера";
           }
         });
     </script>

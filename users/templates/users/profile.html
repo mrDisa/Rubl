@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruble - Профиль</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'feed/feed.css' %}" />
+    <script src="{% static 'feed/utils.js' %}" defer></script>
+    <script src="{% static 'users/profile.js' %}" defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar-left">
+        <div class="logo">Ruble</div>
+        <div class="nav-pill">
+          <a
+            href="/feed/"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 50px;
+              height: 50px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 50%;
+              text-decoration: none;
+            "
+          >
+            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+              <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
+            </svg>
+          </a>
+        </div>
+
+        <a
+          href="#"
+          id="my-profile-link"
+          style="
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: auto;
+          "
+        >
+          <div
+            class="user-profile"
+            style="cursor: pointer; display: flex; align-items: center"
+          >
+            <div
+              class="user-details"
+              style="text-align: right; margin-right: 10px"
+            >
+              <div class="user-name" id="current-username">Загрузка...</div>
+              <div class="user-tag" id="current-usertag">#...</div>
+            </div>
+            <div class="avatar" id="current-avatar">?</div>
+          </div>
+        </a>
+      </aside>
+
+      <main class="feed">
+        <div
+          class="profile-header"
+          style="
+            background: rgba(255, 255, 255, 0.03);
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #2a2a35;
+          "
+        >
+          <div
+            id="profile-avatar-big"
+            class="avatar"
+            style="
+              width: 120px;
+              height: 120px;
+              font-size: 48px;
+              margin: 0 auto 20px;
+              background: #fff;
+              color: #000;
+              overflow: hidden;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 4px solid #1c1c22;
+            "
+          >
+            ?
+          </div>
+          <h1 id="profile-name">...</h1>
+          <p
+            id="profile-job"
+            style="color: #8b8b9b; margin-bottom: 12px; font-weight: 500"
+          >
+            ...
+          </p>
+          <p
+            id="profile-bio"
+            style="
+              color: #ccc;
+              font-size: 15px;
+              max-width: 500px;
+              margin: 0 auto 24px;
+            "
+          >
+            ...
+          </p>
+
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              gap: 40px;
+              color: #ccc;
+            "
+          >
+            <div><b id="posts-count">0</b> <br />постов</div>
+            <div><b id="followers-count">0</b> <br />рубликов</div>
+          </div>
+
+          <button
+            id="edit-profile-btn"
+            class="btn-post"
+            style="margin-top: 30px; display: none; width: 220px"
+          >
+            Настройки профиля
+          </button>
+        </div>
+
+        <h2
+          style="
+            margin-bottom: 24px;
+            font-weight: 300;
+            opacity: 0.8;
+            letter-spacing: 1px;
+          "
+        >
+          ПУБЛИКАЦИИ
+        </h2>
+        <div id="user-posts-container"></div>
+        <div id="profile-feed-end" class="feed-end">Загрузка...</div>
+      </main>
+
+      <aside class="sidebar-right"></aside>
+    </div>
+
+    <div
+      id="edit-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: #1c1c22;
+          padding: 30px;
+          border-radius: 24px;
+          width: 90%;
+          max-width: 450px;
+          border: 1px solid #2a2a35;
+        "
+      >
+        <h2 style="margin-bottom: 20px; text-align: center">
+          Настройки профиля
+        </h2>
+        <form id="edit-profile-form">
+          <input
+            type="text"
+            id="edit-firstname"
+            placeholder="Имя"
+            style="
+              width: 100%;
+              background: #2a2a35;
+              border: 1px solid #333;
+              padding: 12px;
+              border-radius: 12px;
+              color: white;
+              margin-bottom: 15px;
+              outline: none;
+            "
+          />
+          <textarea
+            id="edit-bio"
+            placeholder="О себе"
+            rows="3"
+            style="
+              width: 100%;
+              background: #2a2a35;
+              border: 1px solid #333;
+              padding: 12px;
+              border-radius: 12px;
+              color: white;
+              margin-bottom: 15px;
+              outline: none;
+              font-family: inherit;
+              resize: none;
+            "
+          ></textarea>
+          <input
+            type="text"
+            id="edit-job"
+            placeholder="Работа"
+            style="
+              width: 100%;
+              background: #2a2a35;
+              border: 1px solid #333;
+              padding: 12px;
+              border-radius: 12px;
+              color: white;
+              margin-bottom: 15px;
+              outline: none;
+            "
+          />
+          <input
+            type="file"
+            id="edit-avatar-input"
+            accept="image/*"
+            style="margin-bottom: 25px; color: #8b8b9b; font-size: 12px"
+          />
+          <div style="display: flex; gap: 12px">
+            <button
+              type="submit"
+              class="btn-post"
+              style="flex: 2; margin: 0; height: 45px"
+            >
+              Сохранить
+            </button>
+            <button
+              type="button"
+              id="close-modal"
+              style="
+                flex: 1;
+                background: #2a2a35;
+                color: white;
+                border: none;
+                border-radius: 30px;
+                cursor: pointer;
+              "
+            >
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

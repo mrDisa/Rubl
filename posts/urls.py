@@ -1,16 +1,34 @@
 from django.urls import path
 
-from .views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, MyPostsDetailView, MyPostsView, PostDetailView, PostListCreateView
+# Не забудь добавить ToggleLikeView в импорт из .views!
+from .views import (
+    CommentDetailView, CommentListCreateView, 
+    LikeDetailView, LikeListCreateView, 
+    MyPostsDetailView, MyPostsView, 
+    PostDetailView, PostListCreateView,
+    ToggleLikeView,
+    UserPostsListView 
+)
 
 urlpatterns = [
+    # --- ПОСТЫ ---
     path('posts/', PostListCreateView.as_view()),
     path('posts/<int:pk>/', PostDetailView.as_view()),
+    
+    # Тот самый НОВЫЙ путь для безопасного проставления лайка
+    path('posts/<int:post_id>/like/', ToggleLikeView.as_view()), 
+    
+    # --- МОИ ПОСТЫ ---
     path('myposts/', MyPostsView.as_view()),
     path('myposts/<int:pk>/', MyPostsDetailView.as_view()),
     
-    path('', CommentListCreateView.as_view()),
-    path('<int:pk>/', CommentDetailView.as_view()),
+    # --- КОММЕНТАРИИ ---
+    # Исправил пустой путь '' на 'comments/', чтобы не было путаницы!
+    path('comments/', CommentListCreateView.as_view()),
+    path('comments/<int:pk>/', CommentDetailView.as_view()),
 
+    # --- СТАРЫЕ ЛАЙКИ (оставили на всякий случай, если бэкендеру нужно) ---
     path('likes/', LikeListCreateView.as_view()),
     path('likes/<int:pk>/', LikeDetailView.as_view()),
+    path('posts/user/<int:user_id>/', UserPostsListView.as_view()),
 ]

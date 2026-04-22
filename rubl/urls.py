@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
+from django.views.generic import TemplateView # Импорт для HTML-страниц
 
+# Оставили только нужные импорты
 from main import views
-from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, MyPostsDetailView, PostDetailView,  PostListCreateView, MyPostsView
 from feed.views import FeedAPIView, FeedView
-from users.views import UserAPIList, UserDetailView, UserMeView, UserRegisterAPIView
-from interactions.views import FollowListCreateView, FollowDetailView
 from . import settings
 
 from rest_framework_simplejwt.views import (
@@ -15,25 +14,33 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
+    # === АДМИНКА ===
     path('admin/', admin.site.urls),
+
+    # === СТРАНИЦЫ ДЛЯ ЛЮДЕЙ (HTML) ===
     path('', views.mainView, name='main'),
-    
-    # jwt login
-    path("api/v1/token/", TokenObtainPairView.as_view()),
-    path("api/v1/token/refresh/", TokenRefreshView.as_view()),
-
-    # feed
-    path('api/v1/feed/', FeedAPIView.as_view()),
     path('feed/', FeedView, name='feed'),
+    # Наши новые красивые ссылки для авторизации
+    path('signup/', TemplateView.as_view(template_name='users/register.html'), name='signup_page'),
+    path('login/', TemplateView.as_view(template_name='users/login.html'), name='login_page'),
 
-    # users
+    # === API ЭНДПОИНТЫ (Для работы JS и базы данных) ===
+    
+    # 1. JWT Авторизация
+    path("api/v1/token/", TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path("api/v1/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
+
+    # 2. Лента API
+    path('api/v1/feed/', FeedAPIView.as_view(), name='api_feed'),
+
+    # 3. Маршруты приложений
     path('api/v1/users/', include('users.urls')),
-
-    # posts
-    path('api/v1/', include('posts.urls')),
-    path('api/v1/comments/', include('posts.urls')),
     path('api/v1/follows/', include('interactions.urls')),
-    path('api/v1/likes/', include('posts.urls')),
+    
+    # В posts.urls уже лежат пути для posts/, comments/ и likes/
+    # Поэтому мы подключаем его один раз в корень api/v1/
+    path('api/v1/', include('posts.urls')), 
+    path('profile/<int:pk>/', TemplateView.as_view(template_name='users/profile.html'), name='profile_page'),
 ]
 
 if settings.DEBUG:

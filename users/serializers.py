@@ -1,16 +1,27 @@
 from rest_framework import serializers
-
 from users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        # Добавляем все наши поля из модели
+        fields = ['id', 'username', 'first_name', 'email', 'password', 'job', 'bio', 'avatar', 'rank']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'job': {'required': False},
+            'bio': {'required': False},
+            'rank': {'read_only': True}, # Ранг обычно меняет система, а не юзер
+        }
+    
         
     def create(self, validated_data):
+        # Твоя оригинальная логика создания пользователя через create_user
         user = User.objects.create_user(
-            username=validated_data['username'], email=validated_data['email'], password=validated_data['password']
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
         )
+        # Если при регистрации передаются доп. поля, можно их сохранить тут
+        user.first_name = validated_data.get('first_name', '')
+        user.save()
         return user
-    

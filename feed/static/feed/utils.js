@@ -161,7 +161,6 @@ function createPostElement(post, accessToken) {
   const subC = postDiv.querySelector(".btn-submit-comment");
   const inpC = postDiv.querySelector(".comment-input");
 
-  // ДОБАВЛЕНО: Отправка комментария по Enter
   inpC.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -180,7 +179,7 @@ function createPostElement(post, accessToken) {
     const div = document.createElement("div");
     div.innerHTML = `<span style="color: #ffffff; font-weight: bold; margin-right: 6px;">${myName}:</span> <span style="color: #cccccc;">${val}</span>`;
     div.style.cssText =
-      "padding: 10px 14px; background: #2a2a35; border-radius: 12px; margin-bottom: 8px;";
+      "padding: 8px 12px; background: #2a2a35; border-radius: 8px; margin-bottom: 8px;";
 
     postDiv.querySelector(".comments-list").prepend(div);
     inpC.value = "";
@@ -201,3 +200,108 @@ function createPostElement(post, accessToken) {
 
   return postDiv;
 }
+
+window.initNotifications = async function (accessToken) {
+  const openBtn = document.getElementById("open-notifications-btn");
+  const modal = document.getElementById("notifications-modal");
+  const closeBtn = document.getElementById("close-notifications");
+  const listContainer = document.getElementById("notifications-list");
+  const badge = document.getElementById("notifications-badge");
+
+  if (!openBtn || !modal) return;
+
+  openBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    modal.style.display = "flex";
+
+    if (badge.style.display !== "none") {
+      badge.style.display = "none";
+      try {
+        await fetch("/api/v1/notifications/read_all/", {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+        });
+      } catch (error) {
+        console.error("Ошибка при пометке прочитанным:", error);
+      }
+    }
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  try {
+    const res = await fetch("/api/v1/notifications/", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const notifs = data.results || data;
+
+      listContainer.innerHTML = "";
+
+      if (notifs.length === 0) {
+        listContainer.innerHTML =
+          '<div style="color: #8b8b9b; text-align: center; padding: 20px;">Нет новых уведомлений</div>';
+        return;
+      }
+
+      const hasUnread = notifs.some((n) => !n.is_read);
+      if (hasUnread) {
+        badge.style.display = "block";
+      }
+
+      notifs.forEach((notif) => {
+        const div = document.createElement("div");
+
+        // КРАСИВЫЙ ДИЗАЙН УВЕДОМЛЕНИЙ
+
+        // 1. Проверяем прочитано ли, чтобы сделать фон чуть ярче или добавить левую обводку
+        const bgStyle = notif.is_read
+          ? "background: transparent; border: 1px solid #ffffff0d;"
+          : "background: #2a2a35; border-left: 4px solid #ff4d4f;";
+
+        div.style.cssText = `padding: 16px; border-radius: 16px; ${bgStyle} display: flex; align-items: center; gap: 16px; font-size: 15px; transition: 0.2s; box-sizing: border-box;`;
+
+        // 2. Достаем никнейм и первую букву (для аватарки)
+        const actorName =
+          notif.actor && notif.actor.username ? notif.actor.username : "?";
+        const initial = actorName.charAt(0).toUpperCase();
+
+        // 3. Форматируем красивую дату (например "24 апр. в 13:16")
+        const dateObj = new Date(notif.created_at);
+        const timeString = dateObj.toLocaleTimeString("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const dateString = dateObj.toLocaleDateString("ru-RU", {
+          day: "numeric",
+          month: "short",
+        });
+
+        // 4. Отрисовываем
+        div.innerHTML = `
+          <div style="width: 44px; height: 44px; background: #ffffff; color: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0;">
+            ${initial}
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="color: #ffffff; line-height: 1.4;">
+              ${notif.text || "У вас новое уведомление!"}
+            </div>
+            <div style="color: #8b8b9b; font-size: 12px; font-weight: 500;">
+              ${dateString} в ${timeString}
+            </div>
+          </div>
+        `;
+        listContainer.appendChild(div);
+      });
+    }
+  } catch (e) {
+    console.error("Ошибка загрузки уведомлений", e);
+  }
+};

@@ -38,6 +38,9 @@ urlpatterns = [
     path('api/v1/', include('main.api.urls')),
     path('api/v1/search/', SearchView.as_view()),
     path('profile/<int:pk>/', TemplateView.as_view(template_name='users/profile.html'), name='profile_page'),
+
+    path('api/v1/interactions/', include('interactions.urls')),
+    path('api/v1/notifications/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:

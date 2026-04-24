@@ -53,12 +53,29 @@
                 <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
               </svg>
             </a>
-            <a href="#" style="display: contents">
+            <a
+              href="#"
+              id="open-notifications-btn"
+              style="display: contents; position: relative"
+            >
               <svg class="nav-icon" viewBox="0 0 24 24">
                 <path
                   d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
                 />
               </svg>
+              <div
+                id="notifications-badge"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  width: 8px;
+                  height: 8px;
+                  background: #ff4d4f;
+                  border-radius: 50%;
+                "
+              ></div>
             </a>
           </div>
         </div>
@@ -202,25 +219,54 @@
               рубликов
             </div>
           </div>
-          <button
-            id="edit-profile-btn"
+
+          <div
             style="
-              margin: 24px auto 0;
-              display: none;
-              width: 100%;
-              max-width: 280px;
-              height: 48px;
-              background: #ffffff;
-              color: #000000;
-              border: none;
-              border-radius: 12px;
-              cursor: pointer;
-              font-weight: 600;
-              font-size: 15px;
+              display: flex;
+              justify-content: center;
+              gap: 12px;
+              margin-top: 24px;
             "
           >
-            Редактировать профиль
-          </button>
+            <button
+              id="edit-profile-btn"
+              style="
+                display: none;
+                width: 100%;
+                max-width: 280px;
+                height: 48px;
+                background: #ffffff;
+                color: #000000;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 15px;
+                transition: 0.2s;
+              "
+            >
+              Редактировать профиль
+            </button>
+            <button
+              id="follow-btn"
+              style="
+                display: none;
+                width: 100%;
+                max-width: 280px;
+                height: 48px;
+                background: #ffffff;
+                color: #000000;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 15px;
+                transition: 0.2s;
+              "
+            >
+              Подписаться
+            </button>
+          </div>
         </div>
 
         <h2
@@ -372,6 +418,72 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      id="notifications-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000d9;
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: #1c1c22;
+          padding: 32px;
+          border-radius: 24px;
+          width: 90%;
+          max-width: 400px;
+          border: 1px solid #2a2a35;
+          max-height: 80vh;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+          "
+        >
+          <h2 style="font-weight: 600; margin: 0">Уведомления</h2>
+          <button
+            id="close-notifications"
+            style="
+              background: transparent;
+              border: none;
+              color: #8b8b9b;
+              cursor: pointer;
+            "
+          >
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="notifications-list"
+          style="
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+          "
+        ></div>
       </div>
     </div>
   </body>

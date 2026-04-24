@@ -48,13 +48,95 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // === ЖИВОЙ ПОИСК ===
+  const searchInput = document.getElementById("search-input");
+  const searchResults = document.getElementById("search-results");
+  let searchTimeout = null;
+
+  if (searchInput && searchResults) {
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.trim();
+      if (searchTimeout) clearTimeout(searchTimeout);
+
+      if (!query) {
+        searchResults.style.display = "none";
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(
+            `/api/v1/search/?q=${encodeURIComponent(query)}`,
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            },
+          );
+          if (res.ok) {
+            const data = await res.json();
+            renderSearchResults(data);
+          }
+        } catch (err) {
+          console.error("Ошибка поиска", err);
+        }
+      }, 300);
+    });
+
+    function renderSearchResults(data) {
+      searchResults.innerHTML = "";
+      const { users, posts } = data;
+
+      if (users.length === 0 && posts.length === 0) {
+        searchResults.innerHTML =
+          '<div style="padding: 16px; color: #8b8b9b; text-align: center; font-size: 14px;">Ничего не найдено 😔</div>';
+        searchResults.style.display = "block";
+        return;
+      }
+
+      let html = "";
+      if (users.length > 0) {
+        html +=
+          '<div style="padding: 12px 16px 8px; font-size: 12px; font-weight: 700; color: #8b8b9b; text-transform: uppercase; letter-spacing: 1px;">Пользователи</div>';
+        users.forEach((user) => {
+          const name = user.first_name || user.username;
+          const initial = name.charAt(0).toUpperCase();
+          html += `
+            <a href="/profile/${user.id}/" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: inherit; transition: 0.2s;" onmouseover="this.style.background='#2a2a35'" onmouseout="this.style.background='transparent'">
+              <div style="width: 36px; height: 36px; background: #ffffff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">${initial}</div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="color: #ffffff; font-weight: 600; font-size: 14px;">${name}</span>
+                <span style="color: #8b8b9b; font-size: 13px;">@${user.username}</span>
+              </div>
+            </a>`;
+        });
+      }
+
+      if (posts.length > 0) {
+        html +=
+          '<div style="padding: 12px 16px 8px; font-size: 12px; font-weight: 700; color: #8b8b9b; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #2a2a35; margin-top: 4px;">Посты</div>';
+        posts.forEach((post) => {
+          html += `
+            <a href="/profile/${post.author.id}/" style="display: block; padding: 12px 16px; text-decoration: none; color: inherit; transition: 0.2s;" onmouseover="this.style.background='#2a2a35'" onmouseout="this.style.background='transparent'">
+              <div style="color: #ffffff; font-weight: 600; font-size: 14px; margin-bottom: 4px;">${post.title || "Без заголовка"}</div>
+              <div style="color: #8b8b9b; font-size: 13px;">Автор: @${post.author.username}</div>
+            </a>`;
+        });
+      }
+      searchResults.innerHTML = html;
+      searchResults.style.display = "block";
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("search-container").contains(e.target)) {
+        searchResults.style.display = "none";
+      }
+    });
+  }
+
+  // === ОСТАЛЬНАЯ ЛОГИКА (ПОСТЫ) ===
   const sBtn = document.getElementById("submit-post-btn");
   const mediaInp = document.getElementById("new-post-media");
   const attachBtn = document.getElementById("attach-media-btn");
   const fileName = document.getElementById("attached-file-name");
-
-  const titleInput = document.getElementById("new-post-title");
-  const contentInput = document.getElementById("new-post-content");
 
   if (attachBtn) {
     attachBtn.addEventListener("click", () => mediaInp.click());
@@ -66,27 +148,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ДОБАВЛЕНО: Глобальный перехват Enter внутри блока создания поста
-  const postCreatorBox = document.querySelector(".post-creator");
-  postCreatorBox.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sBtn.click();
-    }
-  });
-
   sBtn.addEventListener("click", async () => {
-    const title = titleInput.value.trim();
-    const content = contentInput.value.trim();
-
-    if (!content) return alert("Пожалуйста, напишите текст поста!");
+    const title = document.getElementById("new-post-title").value.trim();
+    const content = document.getElementById("new-post-content").value.trim();
+    if (!content) return;
 
     const fd = new FormData();
     if (title) fd.append("title", title);
     fd.append("content", content);
     if (mediaInp.files[0]) fd.append("media", mediaInp.files[0]);
 
-    sBtn.disabled = true;
     try {
       const res = await fetch("/api/v1/posts/", {
         method: "POST",
@@ -96,26 +167,20 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: fd,
       });
-
       if (res.ok) {
         const newPost = await res.json();
         feedContainer.prepend(createPostElement(newPost, accessToken));
-        titleInput.value = "";
-        contentInput.value = "";
+        document.getElementById("new-post-title").value = "";
+        document.getElementById("new-post-content").value = "";
         mediaInp.value = "";
         fileName.textContent = "";
-        attachBtn.setAttribute("fill", "#8b8b9b");
-      } else {
-        alert(
-          "Ошибка сервера. Возможно, в моделях Django заголовок указан как обязательный.",
-        );
       }
     } catch (e) {
       console.error(e);
     }
-    sBtn.disabled = false;
   });
 
   loadMyProfile();
   fetchPosts();
+  if (typeof initNotifications === "function") initNotifications(accessToken);
 });

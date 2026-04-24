@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userIdFromUrl = urlParts[urlParts.length - 1];
 
   const editBtn = document.getElementById("edit-profile-btn");
+  const followBtn = document.getElementById("follow-btn");
   const editModal = document.getElementById("edit-modal");
 
   async function initProfile() {
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       document.getElementById("current-username").textContent = me.username;
       document.getElementById("current-usertag").textContent =
-        `@${me.username}`; // ЗАМЕНА НА @
+        `@${me.username}`;
       document.getElementById("current-avatar").textContent = me.username
         .charAt(0)
         .toUpperCase();
@@ -37,6 +38,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         user.job || "Должность не указана";
       document.getElementById("profile-bio").textContent =
         user.bio || "О себе пока ничего нет...";
+      document.getElementById("followers-count").textContent =
+        user.followers_count || 0;
 
       const avatarBig = document.getElementById("profile-avatar-big");
       if (user.avatar) {
@@ -46,7 +49,63 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (String(me.id) === String(user.id)) {
-        editBtn.style.display = "inline-block";
+        editBtn.style.display = "block";
+      } else {
+        followBtn.style.display = "block";
+        let isFollowing = user.is_followed || false;
+
+        const updateFollowUI = () => {
+          followBtn.textContent = isFollowing ? "Отписаться" : "Подписаться";
+          followBtn.style.background = isFollowing ? "transparent" : "#ffffff";
+          followBtn.style.color = isFollowing ? "#ffffff" : "#000000";
+          followBtn.style.border = isFollowing ? "1px solid #333333" : "none";
+        };
+        updateFollowUI();
+
+        followBtn.addEventListener("click", async () => {
+          try {
+            let followRes;
+
+            if (isFollowing) {
+              followRes = await fetch(
+                `/api/v1/interactions/${userIdFromUrl}/`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "X-CSRFToken": getCookie("csrftoken"),
+                  },
+                },
+              );
+            } else {
+              followRes = await fetch(`/api/v1/interactions/`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                  "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({ following: userIdFromUrl }),
+              });
+            }
+
+            if (followRes.ok) {
+              isFollowing = !isFollowing;
+              updateFollowUI();
+
+              const currentFollowers = parseInt(
+                document.getElementById("followers-count").textContent,
+              );
+              document.getElementById("followers-count").textContent =
+                isFollowing ? currentFollowers + 1 : currentFollowers - 1;
+            } else {
+              const errorText = await followRes.text();
+              console.error("Бэкенд ругается:", errorText);
+            }
+          } catch (e) {
+            console.error("Ошибка при подписке:", e);
+          }
+        });
       }
 
       loadUserPosts(user.id);
@@ -100,13 +159,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  document
-    .getElementById("close-modal")
-    .addEventListener("click", () => (editModal.style.display = "none"));
+  const closeEditModal = document.getElementById("close-modal");
+  if (closeEditModal) {
+    closeEditModal.addEventListener(
+      "click",
+      () => (editModal.style.display = "none"),
+    );
+  }
 
-  document
-    .getElementById("edit-profile-form")
-    .addEventListener("submit", async (e) => {
+  const editProfileForm = document.getElementById("edit-profile-form");
+  if (editProfileForm) {
+    editProfileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData();
       fd.append("first_name", document.getElementById("edit-firstname").value);
@@ -126,6 +189,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       location.reload();
     });
+  }
 
   initProfile();
+
+  if (typeof initNotifications === "function") {
+    initNotifications(accessToken);
+  }
 });

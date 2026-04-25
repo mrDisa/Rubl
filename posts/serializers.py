@@ -5,10 +5,26 @@ from .models import Comment, Like, Post
 
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    # Добавляем поля для лайков комментариев
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ("__all__")
+        # Явно перечисляем поля
+        fields = ['id', 'author', 'post', 'text', 'created_at', 'likes_count', 'is_liked']
         read_only_fields = ("author",)  
+
+    # Считаем лайки у конкретного комментария
+    def get_likes_count(self, obj):
+        return Like.objects.filter(comment=obj).count()
+
+    # Проверяем, лайкнул ли текущий юзер этот комментарий
+    def get_is_liked(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return Like.objects.filter(user=request.user, comment=obj).exists()
+        return False
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -18,6 +34,7 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
+    
     class Meta:
         model = Post
         fields = ['id', 'title', 'content', 'media', 'created_at', 'updated_at', 'author', 'comments', 'is_liked', 'likes_count', 'comments_count']
@@ -25,15 +42,17 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_likes_count(self, obj):
         return obj.likes.count()
+        
     def get_is_liked(self, obj):
         request = self.context.get("request")
-
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
-
         return False
+        
     def get_comments_count(self, obj):
         return obj.comments.count()
+
+
 class LikeSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:

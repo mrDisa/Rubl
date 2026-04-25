@@ -16,7 +16,6 @@
         padding-right: 32px !important;
         box-sizing: border-box;
       }
-      /* Стили для скроллбара в поиске */
       #search-results::-webkit-scrollbar {
         width: 6px;
       }
@@ -29,7 +28,12 @@
   <body>
     <div class="container">
       <aside class="sidebar-left">
-        <div class="logo" style="margin-bottom: 32px">Ruble</div>
+        <a
+          href="/feed/"
+          style="text-decoration: none; color: inherit; outline: none"
+        >
+          <div class="logo" style="margin-bottom: 32px">Ruble</div>
+        </a>
 
         <div
           style="
@@ -79,12 +83,9 @@
           </div>
         </div>
 
-        <a
-          href="#"
-          id="my-profile-link"
-          style="text-decoration: none; color: inherit; margin-top: auto"
-        >
+        <div style="position: relative; margin-top: auto">
           <div
+            id="user-menu-btn"
             class="user-profile"
             style="
               cursor: pointer;
@@ -124,7 +125,57 @@
               ?
             </div>
           </div>
-        </a>
+
+          <div
+            id="user-dropdown"
+            style="
+              display: none;
+              position: absolute;
+              bottom: calc(100% + 12px);
+              right: 0;
+              background: #1c1c22;
+              border: 1px solid #2a2a35;
+              border-radius: 16px;
+              width: 180px;
+              padding: 8px;
+              flex-direction: column;
+              gap: 4px;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+              z-index: 100;
+            "
+          >
+            <a
+              href="#"
+              id="dropdown-profile-link"
+              style="
+                padding: 10px 14px;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 10px;
+                transition: 0.2s;
+                font-size: 14px;
+              "
+              onmouseover="this.style.background = '#2a2a35'"
+              onmouseout="this.style.background = 'transparent'"
+              >Перейти в профиль</a
+            >
+            <div
+              id="dropdown-logout-btn"
+              style="
+                padding: 10px 14px;
+                color: #ff4d4f;
+                cursor: pointer;
+                border-radius: 10px;
+                transition: 0.2s;
+                font-size: 14px;
+              "
+              onmouseover="this.style.background = '#2a2a35'"
+              onmouseout="this.style.background = 'transparent'"
+            >
+              Выйти из аккаунта
+            </div>
+          </div>
+        </div>
       </aside>
 
       <main class="feed">
@@ -157,7 +208,7 @@
             <input
               type="text"
               id="search-input"
-              placeholder="Поиск по постам и пользователям..."
+              placeholder="Поиск..."
               autocomplete="off"
               style="
                 background: transparent;
@@ -245,34 +296,35 @@
               ></span>
             </div>
             <div>
-              <svg
-                width="24"
-                height="24"
-                fill="#8b8b9b"
-                viewBox="0 0 24 24"
-                style="vertical-align: middle; margin-right: 10px"
-              >
-                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-              </svg>
               <button class="btn-post" id="submit-post-btn">Запостить</button>
             </div>
           </div>
         </div>
 
-        <h1 class="feed-header" style="margin-top: 12px; margin-bottom: 4px">
+        <h1
+          class="feed-header"
+          id="feed-title"
+          style="margin-top: 12px; margin-bottom: 4px"
+        >
           Лента
         </h1>
         <div
           id="feed-posts-container"
           style="display: flex; flex-direction: column; gap: 16px"
         ></div>
-        <div class="feed-end" style="margin-top: 24px">Больше постов нет.</div>
+        <div class="feed-end" id="feed-end-text" style="margin-top: 24px">
+          Больше постов нет.
+        </div>
       </main>
 
-      <aside class="sidebar-right">
+      <aside
+        class="sidebar-right"
+        style="display: flex; flex-direction: column"
+      >
         <div>
           <h2 class="widget-title">Итоги недели</h2>
           <div class="top-users-header">Топ 5 лучших рубликов</div>
+
           <div class="top-user-card">
             <div class="top-user-left">
               <div
@@ -297,6 +349,7 @@
               <div class="top-user-badge">ЛУЧШИЙ</div>
             </div>
           </div>
+
           <div class="top-user-card">
             <div class="top-user-left">
               <div
@@ -323,14 +376,15 @@
               <div class="top-user-badge">ЛЮБИМЫЙ</div>
             </div>
           </div>
+
           <div class="see-more">см. больше</div>
         </div>
 
-        <div class="update-widget">
+        <div class="update-widget" style="margin-top: auto">
           <h3>Последнее обновление</h3>
-          <div class="update-version">1.31</div>
+          <div class="update-version">1.37</div>
           <div class="update-text">
-            Добавили возможность публикации фото и умные лайки.
+            Добавлен выход из аккаунта и улучшен дизайн меню.
           </div>
           <button class="btn-patch">См. все патчи</button>
         </div>

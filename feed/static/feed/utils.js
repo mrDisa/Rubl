@@ -16,9 +16,9 @@ function getCookie(name) {
 function createPostElement(post, accessToken) {
   const postDiv = document.createElement("div");
   postDiv.classList.add("post");
-
+  postDiv.id = `post-${post.id}`;
   postDiv.style.cssText =
-    "border-radius: 20px; padding: 20px; margin-bottom: 0;";
+    "border-radius: 20px; padding: 20px; margin-bottom: 0; scroll-margin-top: 40px;";
 
   const author = post.author || {};
   const authorName = author.first_name || author.username || "User";
@@ -50,10 +50,24 @@ function createPostElement(post, accessToken) {
     const cAuthor = c.author
       ? c.author.first_name || c.author.username
       : "User";
+    const cAuthorId = c.author ? c.author.id : "";
+    const cProfileUrl = cAuthorId ? `/profile/${cAuthorId}/` : "#";
+    const cLiked = c.is_liked || false;
+    const cLikesCount = c.likes_count || 0;
+
     commentsHtml += `
-      <div style="padding: 10px 14px; background: #2a2a35; border-radius: 12px; margin-bottom: 8px;">
-        <span style="color: #ffffff; font-weight: 600; margin-right: 6px;">${cAuthor}:</span>
-        <span style="color: #cccccc;">${c.text}</span>
+      <div style="padding: 10px 14px; background: #2a2a35; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+        <div style="flex: 1;">
+          <a href="${cProfileUrl}" style="color: #ffffff; font-weight: 600; margin-right: 6px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#8b8b9b'" onmouseout="this.style.color='#ffffff'">${cAuthor}:</a>
+          <span style="color: #cccccc;">${c.text}</span>
+        </div>
+        
+        <div class="comment-like-btn" data-comment-id="${c.id}" data-liked="${cLiked}" data-likes="${cLikesCount}" style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-top: 2px;">
+          <svg width="14" height="14" fill="${cLiked ? "#ff4d4f" : "#8b8b9b"}" viewBox="0 0 24 24" style="transition: fill 0.2s;">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span style="color: ${cLiked ? "#ff4d4f" : "#8b8b9b"}; font-size: 12px; font-weight: 500; transition: color 0.2s;">${cLikesCount}</span>
+        </div>
       </div>`;
   });
 
@@ -63,10 +77,23 @@ function createPostElement(post, accessToken) {
     const fcAuthor = fc.author
       ? fc.author.first_name || fc.author.username
       : "User";
+    const fcAuthorId = fc.author ? fc.author.id : "";
+    const fcProfileUrl = fcAuthorId ? `/profile/${fcAuthorId}/` : "#";
+    const fcLiked = fc.is_liked || false;
+    const fcLikesCount = fc.likes_count || 0;
+
     firstCommentHtml = `
-      <div class="first-comment-preview" style="margin-top: 16px; padding: 10px 14px; background: #2a2a35; border-radius: 12px;">
-        <span style="color: #ffffff; font-weight: 600; margin-right: 6px;">${fcAuthor}:</span>
-        <span style="color: #cccccc;">${fc.text}</span>
+      <div class="first-comment-preview" style="margin-top: 16px; padding: 10px 14px; background: #2a2a35; border-radius: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+        <div style="flex: 1;">
+          <a href="${fcProfileUrl}" style="color: #ffffff; font-weight: 600; margin-right: 6px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#8b8b9b'" onmouseout="this.style.color='#ffffff'">${fcAuthor}:</a>
+          <span style="color: #cccccc;">${fc.text}</span>
+        </div>
+        <div class="comment-like-btn" data-comment-id="${fc.id}" data-liked="${fcLiked}" data-likes="${fcLikesCount}" style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-top: 2px;">
+          <svg width="14" height="14" fill="${fcLiked ? "#ff4d4f" : "#8b8b9b"}" viewBox="0 0 24 24" style="transition: fill 0.2s;">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span style="color: ${fcLiked ? "#ff4d4f" : "#8b8b9b"}; font-size: 12px; font-weight: 500; transition: color 0.2s;">${fcLikesCount}</span>
+        </div>
       </div>
     `;
   }
@@ -127,6 +154,7 @@ function createPostElement(post, accessToken) {
       </div>
   `;
 
+  // Логика лайка поста
   const lBtn = postDiv.querySelector(".like-btn");
   lBtn.addEventListener("click", async () => {
     isLiked = !isLiked;
@@ -146,6 +174,7 @@ function createPostElement(post, accessToken) {
     });
   });
 
+  // Открытие/закрытие комментариев
   const cBtn = postDiv.querySelector(".comment-btn");
   const cSec = postDiv.querySelector(".comment-section");
   const preview = postDiv.querySelector(".first-comment-preview");
@@ -158,8 +187,52 @@ function createPostElement(post, accessToken) {
     }
   });
 
+  // Логика лайков комментариев
+  postDiv.addEventListener("click", async (e) => {
+    const likeBtn = e.target.closest(".comment-like-btn");
+    if (!likeBtn) return;
+
+    const commentId = likeBtn.getAttribute("data-comment-id");
+    if (!commentId) return;
+
+    let isCommentLiked = likeBtn.getAttribute("data-liked") === "true";
+    let commentLikesCount = parseInt(likeBtn.getAttribute("data-likes")) || 0;
+
+    isCommentLiked = !isCommentLiked;
+    commentLikesCount += isCommentLiked ? 1 : -1;
+
+    const allMatchingBtns = postDiv.querySelectorAll(
+      `.comment-like-btn[data-comment-id="${commentId}"]`,
+    );
+
+    allMatchingBtns.forEach((btn) => {
+      btn.setAttribute("data-liked", isCommentLiked);
+      btn.setAttribute("data-likes", commentLikesCount);
+
+      const svg = btn.querySelector("svg");
+      const span = btn.querySelector("span");
+      svg.setAttribute("fill", isCommentLiked ? "#ff4d4f" : "#8b8b9b");
+      span.textContent = commentLikesCount;
+      span.style.color = isCommentLiked ? "#ff4d4f" : "#8b8b9b";
+    });
+
+    try {
+      await fetch(`/api/v1/posts/${post.id}/comments/${commentId}/like/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "X-CSRFToken": csrftoken,
+        },
+      });
+    } catch (err) {
+      console.error("Ошибка при лайке комментария:", err);
+    }
+  });
+
+  // Логика создания нового комментария
   const subC = postDiv.querySelector(".btn-submit-comment");
   const inpC = postDiv.querySelector(".comment-input");
+  const commentsListWrapper = postDiv.querySelector(".comments-list");
 
   inpC.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -176,26 +249,59 @@ function createPostElement(post, accessToken) {
       ? document.getElementById("current-username").textContent
       : "Я";
 
-    const div = document.createElement("div");
-    div.innerHTML = `<span style="color: #ffffff; font-weight: bold; margin-right: 6px;">${myName}:</span> <span style="color: #cccccc;">${val}</span>`;
-    div.style.cssText =
-      "padding: 8px 12px; background: #2a2a35; border-radius: 8px; margin-bottom: 8px;";
+    // Получаем ссылку на наш собственный профиль из меню
+    const myProfileHref =
+      document.getElementById("dropdown-profile-link")?.getAttribute("href") ||
+      "#";
 
-    postDiv.querySelector(".comments-list").prepend(div);
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = `
+      <div style="padding: 10px 14px; background: #2a2a35; border-radius: 12px; margin-bottom: 8px; opacity: 0.6;">
+        <a href="${myProfileHref}" style="color: #ffffff; font-weight: 600; margin-right: 6px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#8b8b9b'" onmouseout="this.style.color='#ffffff'">${myName}:</a>
+        <span style="color: #cccccc;">${val}</span>
+        <span style="color: #8b8b9b; font-size: 11px; margin-left: 10px;">отправка...</span>
+      </div>`;
+
+    commentsListWrapper.prepend(tempDiv);
     inpC.value = "";
 
-    await fetch("/api/v1/comments/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-        "X-CSRFToken": csrftoken,
-      },
-      body: JSON.stringify({ post: post.id, text: val }),
-    });
+    try {
+      const res = await fetch("/api/v1/comments/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({ post: post.id, text: val }),
+      });
 
-    const commentCountSpan = cBtn.querySelector("span");
-    commentCountSpan.textContent = parseInt(commentCountSpan.textContent) + 1;
+      if (res.ok) {
+        const newComment = await res.json();
+        tempDiv.outerHTML = `
+          <div style="padding: 10px 14px; background: #2a2a35; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="flex: 1;">
+              <a href="${myProfileHref}" style="color: #ffffff; font-weight: 600; margin-right: 6px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='#8b8b9b'" onmouseout="this.style.color='#ffffff'">${myName}:</a>
+              <span style="color: #cccccc;">${val}</span>
+            </div>
+            <div class="comment-like-btn" data-comment-id="${newComment.id}" data-liked="false" data-likes="0" style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-top: 2px;">
+              <svg width="14" height="14" fill="#8b8b9b" viewBox="0 0 24 24" style="transition: fill 0.2s;">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <span style="color: #8b8b9b; font-size: 12px; font-weight: 500; transition: color 0.2s;">0</span>
+            </div>
+          </div>`;
+
+        const commentCountSpan = cBtn.querySelector("span");
+        commentCountSpan.textContent =
+          parseInt(commentCountSpan.textContent) + 1;
+      } else {
+        tempDiv.innerHTML = `<span style="color: #ff4d4f; padding: 10px;">Ошибка отправки</span>`;
+      }
+    } catch (e) {
+      console.error(e);
+      tempDiv.innerHTML = `<span style="color: #ff4d4f; padding: 10px;">Ошибка сети</span>`;
+    }
   });
 
   return postDiv;
@@ -210,12 +316,45 @@ window.initNotifications = async function (accessToken) {
 
   if (!openBtn || !modal) return;
 
+  if (!document.getElementById("notif-scrollbar-style")) {
+    const style = document.createElement("style");
+    style.id = "notif-scrollbar-style";
+    style.textContent = `
+      #notifications-list::-webkit-scrollbar { width: 6px; }
+      #notifications-list::-webkit-scrollbar-track { background: transparent; }
+      #notifications-list::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 10px; }
+      #notifications-list::-webkit-scrollbar-thumb:hover { background: #3a3a45; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.style.display === "flex") {
+      modal.style.display = "none";
+    }
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
   openBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     modal.style.display = "flex";
 
     if (badge.style.display !== "none") {
       badge.style.display = "none";
+      badge.textContent = "0";
+
+      const unreadItems = listContainer.querySelectorAll(".notif-item.unread");
+      unreadItems.forEach((item) => {
+        item.style.background = "transparent";
+        item.style.borderLeft = "1px solid #ffffff0d";
+        item.classList.remove("unread");
+      });
+
       try {
         await fetch("/api/v1/notifications/read_all/", {
           method: "PATCH",
@@ -251,29 +390,77 @@ window.initNotifications = async function (accessToken) {
         return;
       }
 
-      const hasUnread = notifs.some((n) => !n.is_read);
-      if (hasUnread) {
-        badge.style.display = "block";
+      const unreadCount = notifs.filter((n) => !n.is_read).length;
+      if (unreadCount > 0) {
+        badge.style.display = "flex";
+        badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+
+        badge.style.width = "auto";
+        badge.style.minWidth = "18px";
+        badge.style.height = "18px";
+        badge.style.top = "-6px";
+        badge.style.right = "-6px";
+        badge.style.padding = "0 4px";
+        badge.style.boxSizing = "border-box";
+        badge.style.fontSize = "11px";
+        badge.style.color = "#fff";
+        badge.style.alignItems = "center";
+        badge.style.justifyContent = "center";
       }
 
       notifs.forEach((notif) => {
-        const div = document.createElement("div");
+        const textLower = (notif.text || "").toLowerCase();
+        let targetUrl = "#";
+        let iconHtml = "🔔";
 
-        // КРАСИВЫЙ ДИЗАЙН УВЕДОМЛЕНИЙ
+        const myProfileUrl =
+          document
+            .getElementById("dropdown-profile-link")
+            ?.getAttribute("href") || "#";
+        const postId =
+          typeof notif.post === "object" ? notif.post?.id : notif.post;
 
-        // 1. Проверяем прочитано ли, чтобы сделать фон чуть ярче или добавить левую обводку
+        if (textLower.includes("подписал")) {
+          targetUrl = `/profile/${notif.actor.id}/`;
+          iconHtml = "👤";
+        } else if (textLower.includes("новый пост")) {
+          targetUrl = `/profile/${notif.actor.id}/#post-${postId}`;
+          iconHtml = "📝";
+        } else if (textLower.includes("комментар")) {
+          targetUrl = `${myProfileUrl}#post-${postId}`;
+          iconHtml = "💬";
+        } else if (textLower.includes("оценил") || textLower.includes("лайк")) {
+          targetUrl = `${myProfileUrl}#post-${postId}`;
+          iconHtml = "❤️";
+        } else if (postId) {
+          targetUrl = `${myProfileUrl}#post-${postId}`;
+        }
+
+        const a = document.createElement("a");
+        a.href = targetUrl;
+        a.className = notif.is_read ? "notif-item" : "notif-item unread";
+
         const bgStyle = notif.is_read
           ? "background: transparent; border: 1px solid #ffffff0d;"
           : "background: #2a2a35; border-left: 4px solid #ff4d4f;";
 
-        div.style.cssText = `padding: 16px; border-radius: 16px; ${bgStyle} display: flex; align-items: center; gap: 16px; font-size: 15px; transition: 0.2s; box-sizing: border-box;`;
+        a.style.cssText = `padding: 14px 16px; border-radius: 16px; ${bgStyle} display: flex; align-items: center; gap: 14px; font-size: 15px; transition: 0.2s; box-sizing: border-box; text-decoration: none; color: inherit;`;
 
-        // 2. Достаем никнейм и первую букву (для аватарки)
+        a.onmouseover = () => {
+          if (notif.is_read) a.style.background = "#ffffff05";
+        };
+        a.onmouseout = () => {
+          if (notif.is_read) a.style.background = "transparent";
+        };
+
+        a.onclick = () => {
+          modal.style.display = "none";
+        };
+
         const actorName =
           notif.actor && notif.actor.username ? notif.actor.username : "?";
         const initial = actorName.charAt(0).toUpperCase();
 
-        // 3. Форматируем красивую дату (например "24 апр. в 13:16")
         const dateObj = new Date(notif.created_at);
         const timeString = dateObj.toLocaleTimeString("ru-RU", {
           hour: "2-digit",
@@ -284,13 +471,17 @@ window.initNotifications = async function (accessToken) {
           month: "short",
         });
 
-        // 4. Отрисовываем
-        div.innerHTML = `
-          <div style="width: 44px; height: 44px; background: #ffffff; color: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0;">
-            ${initial}
+        a.innerHTML = `
+          <div style="position: relative; flex-shrink: 0;">
+            <div style="width: 44px; height: 44px; background: #ffffff; color: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">
+              ${initial}
+            </div>
+            <div style="position: absolute; bottom: -4px; right: -4px; background: #1c1c22; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 2px solid #1c1c22;">
+               ${iconHtml}
+            </div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div style="color: #ffffff; line-height: 1.4;">
+            <div style="color: #ffffff; line-height: 1.4; font-size: 14px;">
               ${notif.text || "У вас новое уведомление!"}
             </div>
             <div style="color: #8b8b9b; font-size: 12px; font-weight: 500;">
@@ -298,10 +489,37 @@ window.initNotifications = async function (accessToken) {
             </div>
           </div>
         `;
-        listContainer.appendChild(div);
+        listContainer.appendChild(a);
       });
     }
   } catch (e) {
     console.error("Ошибка загрузки уведомлений", e);
+  }
+};
+
+window.initUserMenu = function () {
+  const btn = document.getElementById("user-menu-btn");
+  const dropdown = document.getElementById("user-dropdown");
+  const logoutBtn = document.getElementById("dropdown-logout-btn");
+
+  if (btn && dropdown) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown.style.display =
+        dropdown.style.display === "flex" ? "none" : "flex";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("access_token");
+      window.location.href = "/login/";
+    });
   }
 };

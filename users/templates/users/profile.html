@@ -24,7 +24,6 @@
       input[type="file"]::file-selector-button:hover {
         background: #e6e6e6;
       }
-
       .sidebar-left {
         display: flex;
         flex-direction: column;
@@ -32,12 +31,28 @@
         padding-right: 32px !important;
         box-sizing: border-box;
       }
+      /* Стили для скроллбара подписчиков */
+      #followers-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      #followers-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #followers-list::-webkit-scrollbar-thumb {
+        background: #2a2a35;
+        border-radius: 10px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <aside class="sidebar-left">
-        <div class="logo" style="margin-bottom: 32px">Ruble</div>
+        <a
+          href="/feed/"
+          style="text-decoration: none; color: inherit; outline: none"
+        >
+          <div class="logo" style="margin-bottom: 32px">Ruble</div>
+        </a>
 
         <div
           style="
@@ -53,39 +68,44 @@
                 <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
               </svg>
             </a>
-            <a
-              href="#"
-              id="open-notifications-btn"
-              style="display: contents; position: relative"
-            >
-              <svg class="nav-icon" viewBox="0 0 24 24">
-                <path
-                  d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
-                />
-              </svg>
+
+            <a href="#" id="open-notifications-btn" style="display: contents">
               <div
-                id="notifications-badge"
                 style="
-                  display: none;
-                  position: absolute;
-                  top: 0;
-                  right: 0;
-                  width: 8px;
-                  height: 8px;
-                  background: #ff4d4f;
-                  border-radius: 50%;
+                  position: relative;
+                  display: inline-flex;
+                  justify-content: center;
+                  align-items: center;
+                  cursor: pointer;
                 "
-              ></div>
+              >
+                <svg class="nav-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                  />
+                </svg>
+                <div
+                  id="notifications-badge"
+                  style="
+                    display: none;
+                    position: absolute;
+                    top: -2px;
+                    right: -2px;
+                    width: 10px;
+                    height: 10px;
+                    background: #ff4d4f;
+                    border-radius: 50%;
+                    border: 2px solid #1c1c22;
+                  "
+                ></div>
+              </div>
             </a>
           </div>
         </div>
 
-        <a
-          href="#"
-          id="my-profile-link"
-          style="text-decoration: none; color: inherit; margin-top: auto"
-        >
+        <div style="position: relative; margin-top: auto">
           <div
+            id="user-menu-btn"
             class="user-profile"
             style="
               cursor: pointer;
@@ -125,7 +145,57 @@
               ?
             </div>
           </div>
-        </a>
+
+          <div
+            id="user-dropdown"
+            style="
+              display: none;
+              position: absolute;
+              bottom: calc(100% + 12px);
+              right: 0;
+              background: #1c1c22;
+              border: 1px solid #2a2a35;
+              border-radius: 16px;
+              width: 180px;
+              padding: 8px;
+              flex-direction: column;
+              gap: 4px;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+              z-index: 100;
+            "
+          >
+            <a
+              href="#"
+              id="dropdown-profile-link"
+              style="
+                padding: 10px 14px;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 10px;
+                transition: 0.2s;
+                font-size: 14px;
+              "
+              onmouseover="this.style.background = '#2a2a35'"
+              onmouseout="this.style.background = 'transparent'"
+              >Перейти в профиль</a
+            >
+            <div
+              id="dropdown-logout-btn"
+              style="
+                padding: 10px 14px;
+                color: #ff4d4f;
+                cursor: pointer;
+                border-radius: 10px;
+                transition: 0.2s;
+                font-size: 14px;
+              "
+              onmouseover="this.style.background = '#2a2a35'"
+              onmouseout="this.style.background = 'transparent'"
+            >
+              Выйти из аккаунта
+            </div>
+          </div>
+        </div>
       </aside>
 
       <main class="feed">
@@ -182,6 +252,7 @@
           >
             ...
           </p>
+
           <div
             style="
               display: flex;
@@ -205,7 +276,12 @@
               >
               постов
             </div>
-            <div>
+            <div
+              id="followers-btn"
+              style="cursor: pointer; transition: 0.2s"
+              onmouseover="this.style.opacity = '0.7'"
+              onmouseout="this.style.opacity = '1'"
+            >
               <b
                 id="followers-count"
                 style="
@@ -418,6 +494,72 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      id="followers-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000d9;
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        style="
+          background: #1c1c22;
+          padding: 32px;
+          border-radius: 24px;
+          width: 90%;
+          max-width: 400px;
+          border: 1px solid #2a2a35;
+          max-height: 80vh;
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+          "
+        >
+          <h2 style="font-weight: 600; margin: 0">Подписчики</h2>
+          <button
+            id="close-followers"
+            style="
+              background: transparent;
+              border: none;
+              color: #8b8b9b;
+              cursor: pointer;
+            "
+          >
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div
+          id="followers-list"
+          style="
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+          "
+        ></div>
       </div>
     </div>
 

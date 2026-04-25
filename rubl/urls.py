@@ -8,6 +8,7 @@ from main import views
 from feed.views import FeedAPIView, FeedView
 from interactions.views import SearchView
 from . import settings
+from django.views.generic import RedirectView
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -17,6 +18,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     # === АДМИНКА ===
     path('admin/', admin.site.urls),
+    path('', RedirectView.as_view(url='/feed/', permanent=False)),
 
     # === СТРАНИЦЫ ДЛЯ ЛЮДЕЙ (HTML) ===
     path('', views.mainView, name='main'),

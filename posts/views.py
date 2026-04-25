@@ -62,6 +62,7 @@ class PostCommentsView(generics.ListCreateAPIView):
             author=self.request.user,
             post_id=post_id
         )
+
 # ==========================================
 # COMMENTS
 # ==========================================
@@ -80,19 +81,16 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
+
 class CommentLikeToggleView(APIView):
+    # ВЕРНУЛИ post_id, так как роутер бэкендера передает его в URL
     def post(self, request, post_id, comment_id):
 
         if request.user.is_anonymous:
             return Response(status=401)
 
-        post = get_object_or_404(Post, id=post_id)
-
-        comment = get_object_or_404(
-            Comment,
-            id=comment_id,
-            post=post
-        )
+        # Находим комментарий, дополнительно проверяя, что он принадлежит именно этому посту
+        comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
 
         like = Like.objects.filter(
             user=request.user,

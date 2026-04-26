@@ -21,7 +21,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/feed/', permanent=False)),
 
     # === СТРАНИЦЫ ДЛЯ ЛЮДЕЙ (HTML) ===
-    path('', views.mainView, name='main'),
+    # path('', views.mainView, name='main'),
     path('feed/', FeedView, name='feed'),
     # Наши новые красивые ссылки для авторизации
     path('signup/', TemplateView.as_view(template_name='users/register.html'), name='signup_page'),

@@ -8,7 +8,6 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True, null=True)
     
-    # ИЗМЕНЕНО: Добавили blank=True, null=True (теперь текст не обязателен)
     content = models.TextField(max_length=600, blank=True, null=True)
     
     media = models.ImageField(upload_to='media/%Y%m%d', blank=True)

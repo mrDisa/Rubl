@@ -3,6 +3,8 @@ from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from posts.models import Post
+from posts.serializers import PostSerializer
 from users.serializers import UserSerializer
 from users.models import User
 from interactions.models import Follow  # Импортируем модель подписок
@@ -31,14 +33,26 @@ class UserMeView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-# === НОВАЯ ВЬЮХА ДЛЯ ПОДПИСЧИКОВ ===
+class UserPostsListView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Post.objects.filter(author_id=self.request.user)
+
 class UserFollowersListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
-        # Получаем список ID тех, кто подписан на данного пользователя
         follower_ids = Follow.objects.filter(following_id=user_id).values_list('follower_id', flat=True)
-        # Возвращаем QuerySet пользователей
         return User.objects.filter(id__in=follower_ids)
+    
+class UserFollowingListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        following_ids = Follow.objects.filter(follower_id=self.request.user).values_list('following_id', flat=True)
+        return User.objects.filter(id__in=following_ids)

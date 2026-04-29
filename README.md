@@ -236,8 +236,8 @@ Ruble разработан независимой командой:
 
 Исавердов Даниил:
 
-- Telegram: @disawithgod / Почта: daniil.isaverdov@gmail.com
+- Telegram: [@disawithgod](https://t.me/@disawithgod) / Почта: daniil.isaverdov@gmail.com
 
 Богдан Максименко:
 
-- Telegram: @Pantihen / Почта: bogdanmaksimenko51@gmail.com
+- Telegram: [@Pantigen](https://t.me/@Pantihen) / Почта: bogdanmaksimenko51@gmail.com
